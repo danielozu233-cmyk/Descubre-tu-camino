@@ -21,6 +21,7 @@
       --cyan-accent: #38bdf8;
       --gold-accent: #f59e0b;
       --gold-hover: #d97706;
+      --green-accent: #10b981;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --card-bg: rgba(30, 41, 59, 0.7);
@@ -59,11 +60,6 @@
     }
 
     /* HEADER / BRAND LOGO */
-    header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
     .brand-logo-wrapper {
       margin-bottom: 1.25rem;
       display: flex;
@@ -86,6 +82,7 @@
       -webkit-text-fill-color: transparent;
       margin-bottom: 1rem;
       letter-spacing: -0.02em;
+      text-align: center;
     }
 
     .subtitle {
@@ -93,6 +90,7 @@
       font-size: clamp(1rem, 2.2vw, 1.15rem);
       max-width: 650px;
       margin: 0 auto 2rem auto;
+      text-align: center;
     }
 
     /* CARD ESTILO GLASSMORPHISM */
@@ -360,6 +358,12 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
 
+    .faculty-card.secondary {
+      background: rgba(15, 23, 42, 0.35);
+      border-color: rgba(255, 255, 255, 0.06);
+      opacity: 0.95;
+    }
+
     .faculty-logo-box {
       width: 100%;
       max-width: 220px;
@@ -386,13 +390,24 @@
     }
 
     .match-tag {
-      color: var(--gold-accent);
       font-weight: 800;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       margin-bottom: 0.25rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
+    }
+
+    .match-tag.level-high {
+      color: var(--gold-accent);
+    }
+
+    .match-tag.level-mid {
+      color: var(--cyan-accent);
+    }
+
+    .match-tag.level-low {
+      color: var(--text-muted);
     }
 
     .area-tag {
@@ -413,6 +428,48 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.75rem;
+    }
+
+    /* DESGLOSE SECUNDARIO DE RESULTADOS */
+    .toggle-others-container {
+      text-align: center;
+      margin: 2rem 0 1.5rem 0;
+    }
+
+    .btn-toggle-others {
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--cyan-accent);
+      padding: 0.875rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-toggle-others:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--cyan-accent);
+      transform: translateY(-2px);
+    }
+
+    .other-faculties-wrapper {
+      display: none;
+      margin-top: 1.5rem;
+      border-top: 1px dashed rgba(255, 255, 255, 0.15);
+      padding-top: 1.5rem;
+    }
+
+    .other-faculties-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--cyan-accent);
+      margin-bottom: 1.25rem;
+      text-align: center;
     }
 
     .results-actions {
@@ -511,7 +568,7 @@
       <p class="subtitle">Responde estas 12 sencillas preguntas para identificar las facultades universitarias que mejor se adaptan a tus habilidades e intereses.</p>
       
       <button class="btn btn-gold" style="padding: 1rem 2.5rem; font-size: 1.1rem;" onclick="startQuiz()">
-     Iniciar Test
+        Iniciar Test
       </button>
     </main>
 
@@ -549,7 +606,20 @@
         <p class="subtitle">Basado en tus elecciones, estas son las áreas de estudio donde más podrías destacar:</p>
       </div>
 
+      <!-- RECOMENDACIÓN PRINCIPAL -->
       <div id="faculties-results-list"></div>
+
+      <!-- SECCIÓN DESPLEGABLE CON OTRAS COINCIDENCIAS -->
+      <div id="other-matches-section" class="toggle-others-container" style="display: none;">
+        <button class="btn-toggle-others" id="btn-toggle-others" onclick="toggleOtherFaculties()">
+          📊 Mostrar otras opciones afines (<span id="other-count">0</span> más) ▼
+        </button>
+        
+        <div class="other-faculties-wrapper" id="other-faculties-wrapper">
+          <h3 class="other-faculties-title">Otras facultades con afinidad en tu perfil</h3>
+          <div id="other-faculties-list"></div>
+        </div>
+      </div>
 
       <div class="results-actions">
         <button class="btn btn-gold" onclick="restartQuiz()">🔄 Empezar de nuevo</button>
@@ -871,9 +941,8 @@
       }
     }
 
-    // CALCULAR Y MOSTRAR RESULTADOS
+    // CALCULAR Y MOSTRAR RESULTADOS CON NIVELES (ALTO / MEDIO / BAJO)
     function showResults() {
-      // Puntuación por Facultad
       const scores = {};
       Object.keys(FACULTIES).forEach(fKey => scores[fKey] = 0);
 
@@ -888,25 +957,32 @@
         }
       });
 
-      // Obtener Puntuación Máxima
-      let maxScore = 0;
-      Object.values(scores).forEach(score => {
-        if (score > maxScore) maxScore = score;
-      });
+      // Ordenar facultades por puntuación obtenida
+      const sortedFaculties = Object.keys(scores)
+        .map(fKey => ({
+          key: fKey,
+          score: scores[fKey]
+        }))
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score);
 
-      // Filtrar Facultades Empatadas en Primer Lugar
-      const topFacultiesKeys = Object.keys(scores).filter(fKey => scores[fKey] === maxScore && maxScore > 0);
+      if (sortedFaculties.length === 0) {
+        sortedFaculties.push(
+          { key: 'economicas', score: 1 },
+          { key: 'humanidades', score: 1 }
+        );
+      }
 
-      // Si no hay coincidencias directas
-      const finalKeys = topFacultiesKeys.length > 0 ? topFacultiesKeys : ['economicas', 'humanidades'];
+      const maxScore = sortedFaculties[0].score;
+      const topFaculties = sortedFaculties.filter(item => item.score === maxScore);
+      const otherFaculties = sortedFaculties.filter(item => item.score < maxScore);
 
-      // Mostrar HTML
+      // Renderizar Recomendación Principal (Nivel Alto)
       const resultsList = document.getElementById('faculties-results-list');
       resultsList.innerHTML = '';
 
-      finalKeys.forEach(fKey => {
-        const fac = FACULTIES[fKey];
-        const percentMatch = Math.min(100, Math.round((scores[fKey] / (maxScore || 1)) * 100));
+      topFaculties.forEach(item => {
+        const fac = FACULTIES[item.key];
 
         const card = document.createElement('div');
         card.className = 'faculty-card';
@@ -915,7 +991,7 @@
             <img src="${fac.logo}" alt="Logo ${fac.name}" class="faculty-logo-img">
           </div>
           <div class="faculty-info">
-            <div class="match-tag">🌟 ${percentMatch}% de Coincidencia</div>
+            <div class="match-tag level-high">🌟 Recomendación Alta (Tu principal afinidad)</div>
             <div class="area-tag">${fac.area}</div>
             <p class="faculty-desc"><strong>¿Por qué coincide contigo?</strong> ${fac.reason}</p>
             <div class="card-actions">
@@ -931,18 +1007,85 @@
         resultsList.appendChild(card);
       });
 
-      // Intercambiar Vistas
+      // Renderizar Desglose Secundario (Nivel Medio / Inicial)
+      const otherSection = document.getElementById('other-matches-section');
+      const otherList = document.getElementById('other-faculties-list');
+      otherList.innerHTML = '';
+
+      if (otherFaculties.length > 0) {
+        document.getElementById('other-count').textContent = otherFaculties.length;
+        otherSection.style.display = 'block';
+
+        otherFaculties.forEach(item => {
+          const fac = FACULTIES[item.key];
+          
+          // Asignar nivel
+          const levelText = (item.score >= Math.ceil(maxScore / 2)) 
+            ? "👍 Recomendación Media" 
+            : "💡 Recomendación Inicial";
+            
+          const levelClass = (item.score >= Math.ceil(maxScore / 2)) 
+            ? "level-mid" 
+            : "level-low";
+
+          const card = document.createElement('div');
+          card.className = 'faculty-card secondary';
+          card.innerHTML = `
+            <div class="faculty-logo-box">
+              <img src="${fac.logo}" alt="Logo ${fac.name}" class="faculty-logo-img">
+            </div>
+            <div class="faculty-info">
+              <div class="match-tag ${levelClass}" style="font-size: 0.95rem;">
+                ${levelText}
+              </div>
+              <div class="area-tag">${fac.area}</div>
+              <p class="faculty-desc" style="font-size: 0.875rem;">${fac.reason}</p>
+              <div class="card-actions">
+                <a href="${fac.form}" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                  🎓 Explorar Inscripción
+                </a>
+              </div>
+            </div>
+          `;
+          otherList.appendChild(card);
+        });
+      } else {
+        otherSection.style.display = 'none';
+      }
+
+      // Resetear estado inicial del desplegable
+      const wrapper = document.getElementById('other-faculties-wrapper');
+      wrapper.style.display = 'none';
+
       document.getElementById('quiz-view').style.display = 'none';
       document.getElementById('results-view').style.display = 'block';
 
-      // Scroll arriba suavemente
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ALTERNAR VISIBILIDAD DE OTRAS COINCIDENCIAS (ROBUSTO)
+    function toggleOtherFaculties() {
+      const wrapper = document.getElementById('other-faculties-wrapper');
+      const btn = document.getElementById('btn-toggle-others');
+      const count = document.getElementById('other-count').textContent;
+
+      if (wrapper.style.display === 'block') {
+        wrapper.style.display = 'none';
+        btn.innerHTML = `📊 Mostrar otras opciones afines (${count} más) ▼`;
+      } else {
+        wrapper.style.display = 'block';
+        btn.innerHTML = `📊 Ocultar otras opciones ▲`;
+      }
     }
 
     // REINICIAR CUESTIONARIO Y VOLVER A INICIO
     function restartQuiz() {
       currentQuestion = 0;
       userAnswers = new Array(QUESTIONS.length).fill(null);
+      
+      const wrapper = document.getElementById('other-faculties-wrapper');
+      if (wrapper) wrapper.style.display = 'none';
+
       document.getElementById('results-view').style.display = 'none';
       document.getElementById('welcome-view').style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
