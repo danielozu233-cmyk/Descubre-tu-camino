@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Descubre tu Camino - Universidad Panamericana</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* CSS RESET Y VARIABLES */
+    :root {
+      --bg-start: #0f172a;
+      --bg-end: #1e293b;
+      --navy: #0b2545;
+      --blue-primary: #1d6fa5;
+      --blue-hover: #155885;
+      --cyan-accent: #38bdf8;
+      --gold-accent: #f59e0b;
+      --gold-hover: #d97706;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --glass-blur: blur(12px);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .container {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* HEADER / BRAND LOGO */
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .brand-logo-wrapper {
+      margin-bottom: 1.25rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .brand-logo {
+      max-width: 280px;
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+    }
+
+    .main-title {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 0%, var(--cyan-accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: clamp(1rem, 2.2vw, 1.15rem);
+      max-width: 650px;
+      margin: 0 auto 2rem auto;
+    }
+
+    /* CARD ESTILO GLASSMORPHISM */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      margin-bottom: 2rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* VISTA DE BIENVENIDA */
+    .welcome-container {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* BARRA DE PROGRESO */
+    .quiz-container {
+      display: none;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--cyan-accent);
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--blue-primary), var(--cyan-accent));
+      border-radius: 999px;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* CUESTIONARIO */
+    .question-title {
+      font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 1.5rem;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.875rem;
+      margin-bottom: 2rem;
+    }
+
+    .option-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-family: inherit;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .option-btn:hover {
+      background: rgba(56, 189, 248, 0.08);
+      border-color: rgba(56, 189, 248, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .option-btn.selected {
+      background: rgba(29, 111, 165, 0.25);
+      border-color: var(--cyan-accent);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+    }
+
+    .radio-circle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+
+    .option-btn.selected .radio-circle {
+      border-color: var(--cyan-accent);
+      background: var(--cyan-accent);
+    }
+
+    .radio-circle::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--bg-start);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .option-btn.selected .radio-circle::after {
+      opacity: 1;
+    }
+
+    /* CONTROLES NAVEGACIÓN */
+    .controls-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.875rem 1.75rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue-primary) 0%, #155885 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(29, 111, 165, 0.3);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #2583c2 0%, #1d6fa5 100%);
+      box-shadow: 0 6px 20px rgba(29, 111, 165, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--cyan-accent);
+      color: var(--cyan-accent);
+      transform: translateY(-1px);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold-accent) 0%, var(--gold-hover) 100%);
+      color: #000000;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-gold:hover {
+      background: linear-gradient(135deg, #fbbf24 0%, var(--gold-accent) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* MENSAJE DE ADVERTENCIA */
+    .alert-msg {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    /* SECCIÓN RESULTADOS */
+    .results-container {
+      display: none;
+    }
+
+    .results-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .results-badge {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--cyan-accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 0.35rem 1rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+
+    .faculty-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      transition: all 0.3s ease;
+    }
+
+    @media (min-width: 640px) {
+      .faculty-card {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+
+    .faculty-card:hover {
+      border-color: var(--cyan-accent);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .faculty-logo-box {
+      width: 100%;
+      max-width: 220px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      flex-shrink: 0;
+    }
+
+    .faculty-logo-img {
+      max-width: 100%;
+      height: auto;
+      max-height: 90px;
+      object-fit: contain;
+    }
+
+    .faculty-info {
+      flex: 1;
+    }
+
+    .match-tag {
+      color: var(--gold-accent);
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .area-tag {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+
+    .faculty-desc {
+      font-size: 0.925rem;
+      color: #cbd5e1;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .results-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    /* FOOTER MEJORADO Y ELEGANTE */
+    footer {
+      background: linear-gradient(135deg, rgba(11, 37, 69, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 3rem 1.25rem 2rem 1.25rem;
+      text-align: center;
+      margin-top: 4rem;
+      backdrop-filter: var(--glass-blur);
+    }
+
+    .footer-content {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .footer-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-text {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .btn-footer {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-main);
+      padding: 0.75rem 1.25rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-footer:hover {
+      background: var(--blue-primary);
+      border-color: var(--cyan-accent);
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .footer-copyright {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+
+    /* ACCESIBILIDAD REDUCED MOTION */
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- 1. VISTA DE INICIO / BIENVENIDA -->
+    <main id="welcome-view" class="glass-card welcome-container">
+      <div class="brand-logo-wrapper">
+        <img src="https://www.upana.edu.gt/wp-content/uploads/2025/08/upana-logo-1024x330.webp" alt="Universidad Panamericana" class="brand-logo">
+      </div>
+      <h1 class="main-title">Descubre tu Camino</h1>
+      <p class="subtitle">Responde estas 12 sencillas preguntas para identificar las facultades universitarias que mejor se adaptan a tus habilidades e intereses.</p>
+      
+      <button class="btn btn-gold" style="padding: 1rem 2.5rem; font-size: 1.1rem;" onclick="startQuiz()">
+        🚀 Iniciar Test
+      </button>
+    </main>
+
+    <!-- 2. VISTA CUESTIONARIO -->
+    <section id="quiz-view" class="glass-card quiz-container">
+      <div class="progress-header">
+        <span>Pregunta <span id="current-q-num">1</span> de 12</span>
+        <span id="progress-percent">8%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div id="progress-bar-fill" class="progress-bar-fill"></div>
+      </div>
+
+      <div class="alert-msg" id="alert-msg">Por favor, selecciona una opción para continuar.</div>
+
+      <h2 id="question-text" class="question-title">Cargando pregunta...</h2>
+
+      <div id="options-container" class="options-grid"></div>
+
+      <div class="controls-row">
+        <button id="btn-prev" class="btn btn-secondary" onclick="prevQuestion()" disabled>
+          ← Anterior
+        </button>
+        <button id="btn-next" class="btn btn-primary" onclick="nextQuestion()">
+          Siguiente →
+        </button>
+      </div>
+    </section>
+
+    <!-- 3. VISTA RESULTADOS -->
+    <section id="results-view" class="glass-card results-container">
+      <div class="results-header">
+        <span class="results-badge">Resultado de tu Test</span>
+        <h2 class="main-title" style="font-size: 2rem;">Tus Facultades Afines</h2>
+        <p class="subtitle">Basado en tus elecciones, estas son las áreas de estudio donde más podrías destacar:</p>
+      </div>
+
+      <div id="faculties-results-list"></div>
+
+      <div class="results-actions">
+        <button class="btn btn-gold" onclick="restartQuiz()">🔄 Empezar de nuevo</button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- PIE DE PÁGINA -->
+  <footer>
+    <div class="footer-content">
+      <h3 class="footer-title">¿Tienes dudas o necesitas asistencia con tu inscripción?</h3>
+      <p class="footer-text">Nuestro equipo de admisiones está listo para apoyarte en todo momento.</p>
+      
+      <div class="footer-buttons">
+        <a href="mailto:info@upana.edu.gt" class="btn-footer">
+          📧 info@upana.edu.gt
+        </a>
+        <a href="tel:1779" class="btn-footer">
+          📞 PBX: 1779
+        </a>
+      </div>
+
+      <div class="footer-copyright">
+        Universidad Panamericana de Guatemala © Todos los derechos reservados.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // BASE DE DATOS DE FACULTADES
+    const FACULTIES = {
+      economicas: {
+        name: "Ciencias Económicas",
+        area: "Negocios, Finanzas y Emprendimiento",
+        logo: "https://www.upana.edu.gt/wp-content/uploads/2025/08/logo-f-economicas.webp",
+        form: "https://forms.zohopublic.com/upanaguatemala/form/FormulariodeInscripcinEconmicas2027/formperma/Qp0mtL2aIWRYB9p9HEqQMxuyXo0tsqU1ckS5UWdA4TE",
+        reason: "Tienes afinidad por el liderazgo, la gestión estratégica de negocios, el análisis financiero y la creación de proyectos productivos."
+      },
+      juridicas: {
+        name: "Ciencias Jurídicas y Justicia",
+        area: "Derecho, Leyes y Ciencias Sociales",
+        logo: "https://www.upana.edu.gt/wp-content/uploads/2025/08/logo-f-juridicas.webp",
+        form: "https://forms.zohopublic.com/upanaguatemala/form/FormulariodeInscripcin20271/formperma/F36bBmpIoUXvGJm-3MW9VIXDI1-5kL09DkbmyZ1qpZY",
+        reason: "Te interesa la defensa de los derechos, la justicia, la argumentación lógica y la resolución justa de conflictos en la sociedad."
+      },
+      humanidades: {
+        name: "Humanidades",
+        area: "Psicología, Arte y Desarrollo Social",
+        logo: "https://www.upana.edu.gt/wp-content/uploads/2025/08/logo-f-humanidades.webp",
+        form: "https://forms.zohopublic.com/upanaguatemala/form/FormulariodeInscripcinHumanidades2027/formperma/mUNVXedJBhL5D_r8VjNs8i71HdwITRzZ1VnyVHru8Jw",
+        reason: "Destacas por tu empatía, interés en la conducta humana, el desarrollo comunitario, la expresión artística y la orientación a personas."
+      },
+      medicas: {
+        name: "Ciencias Médicas",
+        area: "Medicina y Atención Clínica",
+        logo: "https://www.upana.edu.gt/wp-content/uploads/2025/08/logo-f-medicas.webp",
+        form: "https://forms.zohopublic.com/upanaguatemala/form/FormulariodeInscripcin20272/formperma/5hICuffKyv26jPArbV6RBI_WjEf9nYb7Llwzo2Gr1sU",
+        reason: "Demuestras una gran vocación por salvar vidas, el estudio científico del cuerpo humano y el diagnóstico de enfermedades."
+      },
+      salud: {
+        name: "Ciencias de la Salud",
+        area: "Enfermería, Nutrición y Bienestar",
+        logo: "https://www.upana.edu.gt/wp-content/uploads/2025/08/logo-f-salud.webp",
+        form: "https://forms.zohopublic.com/upanaguatemala/form/FormulariodeInscripcin20274/formperma/SLyPFsTKJ5IigOZCfci31dNgQTkWaADkGBKPYV-Nsws",
+        reason: "Tu vocación es el cuidado preventivo, la atención primaria de la salud, la alimentación consciente y el servicio asistencial."
+      },
+      odontologia: {
+        name: "Odontología",
+        area: "Salud Bucodental y Microcirugía",
+        logo: "https://www.upana.edu.gt/wp-content/uploads/2025/08/logo-f-odontologia.webp",
+        form: "https://forms.zohopublic.com/upanaguatemala/form/FormulariodeInscripcin20273/formperma/MJCNsxAZV_mCohVq3zJnH4G2SwRXq8_pW7y36dd8fKg",
+        reason: "Combinas la precisión manual, la estética dental y el trato directo con pacientes para mejorar la salud bucal."
+      },
+      comunicacion: {
+        name: "Comunicación",
+        area: "Medios, Marketing y Producción Digital",
+        logo: "https://www.upana.edu.gt/wp-content/uploads/2025/08/logo-f-comunicaciones.webp",
+        form: "https://forms.zohopublic.com/upanaguatemala/form/FormulariodeInscripcinComunicacin2027/formperma/kjn_ynqLfLHhqtHBxf10gfMUc1sTcQJSZfcRQIDKM1U",
+        reason: "Tienes inclinación por la creación de contenido, los medios audiovisuales, las estrategias publicitarias y el periodismo."
+      },
+      teologia: {
+        name: "Teología",
+        area: "Liderazgo Espiritual y Ética",
+        logo: "https://www.upana.edu.gt/wp-content/uploads/2025/08/logo-f-teologia.webp",
+        form: "https://forms.zohopublic.com/upanaguatemala/form/FormulariodeInscripcin20275/formperma/RlBXMntSn2C3M73gBGqu-ETbM4CzugcQVZBK2cghF1M",
+        reason: "Te motiva el crecimiento espiritual, la filosofía cristiana, el trabajo pastoral y la orientación ética social."
+      },
+      educacion: {
+        name: "Educación",
+        area: "Pedagogía y Formación Académica",
+        logo: "https://www.upana.edu.gt/wp-content/uploads/2025/08/logo-f-educacion.webp",
+        form: "https://forms.zohopublic.com/upanaguatemala/form/FormulariodeInscripcin20277/formperma/ZaS0hRy-vQd-YfXhBEBof17muo_aTaTBWQE3ouRtW7Y",
+        reason: "Te apasiona enseñar, desarrollar metodologías innovadoras de aprendizaje y guiar a nuevas generaciones."
+      },
+      ingenieria: {
+        name: "Ciencias Aplicadas e Ingeniería",
+        area: "Tecnología, Sistemas e Innovación",
+        logo: "https://www.upana.edu.gt/wp-content/uploads/2025/08/logo-f-ingenieria.webp",
+        form: "https://forms.zohopublic.com/upanaguatemala/form/FormulariodeInscripcin2027/formperma/lDzpn7_2snCQVGxJDja2Dr5JSvfyWQaODSRWd2RYQu4",
+        reason: "Disfrutas resolver problemas complejos, programar software, optimizar procesos y aplicar matemáticas en tecnología."
+      },
+      arquitectura: {
+        name: "Arquitectura",
+        area: "Diseño Urbano y Edificación",
+        logo: "https://www.upana.edu.gt/wp-content/uploads/2025/08/logo-f-arquitectura.webp",
+        form: "https://forms.zohopublic.com/upanaguatemala/form/ProcesodeInscripcin2027/formperma/ftGZac_Tw4MZoEpe3zHWZKxkeE_HnpEhr2qcZhzztfY",
+        reason: "Te motiva planificar espacios físicos, la estética arquitectónica, la construcción sostenible y el diseño en 3D."
+      },
+      virtual: {
+        name: "UPANA Virtual",
+        area: "Educación 100% En Línea y Flexible",
+        logo: "https://www.upana.edu.gt/wp-content/uploads/2025/08/logo-f-upana-virtual.webp",
+        form: "https://forms.zohopublic.com/upanaguatemala/form/FormulariodeInscripcin20276/formperma/sQ6YV_Ab_oVdg0by5Xo-82wqwDFQ_ywufsld5GzxnFU",
+        reason: "Prefieres el aprendizaje autónomo a tu propio ritmo, haciendo uso intensivo de herramientas digitales avanzadas."
+      }
+    };
+
+    // 12 PREGUNTAS CLARAS
+    const QUESTIONS = [
+      {
+        question: "1. En tu tiempo libre o durante un proyecto, ¿qué actividad disfrutas más hacer?",
+        options: [
+          { text: "Organizar ideas, presupuestos o coordinar actividades de trabajo.", tags: ["economicas", "virtual"] },
+          { text: "Investigar temas científicos, el cuerpo humano o temas de salud.", tags: ["medicas", "salud", "odontologia"] },
+          { text: "Crear contenido, diseñar gráficos, grabar video o escribir.", tags: ["comunicacion", "arquitectura"] },
+          { text: "Programar, desarmar dispositivos o entender cómo funcionan las cosas.", tags: ["ingenieria"] }
+        ]
+      },
+      {
+        question: "2. Si pudieras solucionar un problema importante en tu comunidad, ¿cuál elegirías?",
+        options: [
+          { text: "Atender enfermedades y mejorar el bienestar médico de la población.", tags: ["medicas", "salud", "odontologia"] },
+          { text: "Defender a personas en situaciones injustas o mediar conflictos legales.", tags: ["juridicas"] },
+          { text: "Mejorar la educación infantil o capacitar a jóvenes y adultos.", tags: ["educacion", "humanidades"] },
+          { text: "Diseñar mejores edificaciones, parques o espacios urbanos.", tags: ["arquitectura"] }
+        ]
+      },
+      {
+        question: "3. ¿En qué tipo de entorno te sentirías más cómodo trabajando cada día?",
+        options: [
+          { text: "En un hospital, clínica o laboratorio con instrumental médico.", tags: ["medicas", "salud", "odontologia"] },
+          { text: "En una oficina corporativa, empresa propia o entidad financiera.", tags: ["economicas", "virtual"] },
+          { text: "En un estudio de grabación, agencia publicitaria o medios de comunicación.", tags: ["comunicacion"] },
+          { text: "En juzgados, bufetes legales u oficinas de consultoría jurídica.", tags: ["juridicas"] }
+        ]
+      },
+      {
+        question: "4. Cuando trabajas en equipo, ¿cuál suele ser tu rol natural?",
+        options: [
+          { text: "El líder que planifica la estrategia y administra los recursos.", tags: ["economicas"] },
+          { text: "El mediador empático que escucha y cuida la salud mental del grupo.", tags: ["humanidades", "teologia"] },
+          { text: "El técnico lógico que resuelve los fallos y aplica la tecnología.", tags: ["ingenieria"] },
+          { text: "El facilitador que enseña de forma didáctica lo que debe hacerse.", tags: ["educacion"] }
+        ]
+      },
+      {
+        question: "5. ¿Qué asignatura o tema despierta más tu curiosidad natural?",
+        options: [
+          { text: "Biología, anatomía humana o química orgánica.", tags: ["medicas", "salud", "odontologia"] },
+          { text: "Matemáticas avanzadas, física aplicada o programación.", tags: ["ingenieria"] },
+          { text: "Historia, filosofía, valores éticos y leyes sociales.", tags: ["juridicas", "teologia"] },
+          { text: "Dibujo técnico, arte visual y modelado de estructuras.", tags: ["arquitectura"] }
+        ]
+      },
+      {
+        question: "6. ¿Cómo prefieres abordar la solución de un reto difícil?",
+        options: [
+          { text: "Analizando datos con lógica numérica y algoritmos precisos.", tags: ["ingenieria", "economicas"] },
+          { text: "Escuchando a las personas involucradas con profunda empatía.", tags: ["humanidades", "teologia"] },
+          { text: "Usando la creatividad visual e imaginando conceptos novedosos.", tags: ["comunicacion", "arquitectura"] },
+          { text: "Investigando leyes, normas vigentes y precedentes claros.", tags: ["juridicas"] }
+        ]
+      },
+      {
+        question: "7. ¿Cuál de estos logros personales te daría una mayor satisfacción?",
+        options: [
+          { text: "Curar o aliviar directamente el dolor de un paciente.", tags: ["medicas", "odontologia", "salud"] },
+          { text: "Fundar una empresa rentable o liderar un negocio exitoso.", tags: ["economicas"] },
+          { text: "Desarrollar una aplicación de software revolucionaria.", tags: ["ingenieria", "virtual"] },
+          { text: "Formar a estudiantes y verlos triunfar profesionalmente.", tags: ["educacion"] }
+        ]
+      },
+      {
+        question: "8. ¿Qué habilidad manual o práctica consideras que se te da mejor?",
+        options: [
+          { text: "La destreza técnica de alta precisión utilizando instrumentos pequeños.", tags: ["odontologia", "medicas"] },
+          { text: "Dibujar a mano alzada, elaborar maquetas o esquemas visuales.", tags: ["arquitectura"] },
+          { text: "Redactar textos fluidos, hablar en público o grabar locuciones.", tags: ["comunicacion", "juridicas"] },
+          { text: "Manejar eficientemente plataformas virtuales y software interactivo.", tags: ["virtual", "ingenieria"] }
+        ]
+      },
+      {
+        question: "9. Si fueras a leer un libro o ver un documental hoy, ¿sobre qué sería?",
+        options: [
+          { text: "Grandes descubrimientos de la medicina o la ciencia preventiva.", tags: ["medicas", "salud"] },
+          { text: "Estrategias de inversión, historia financiera o grandes emprendedores.", tags: ["economicas"] },
+          { text: "Liderazgo transformacional, fe, teología y propósito de vida.", tags: ["teologia", "humanidades"] },
+          { text: "Impacto del marketing digital y las redes sociales en el mundo.", tags: ["comunicacion", "virtual"] }
+        ]
+      },
+      {
+        question: "10. ¿Qué cualidad personal dirían tus amigos que describe mejor tu carácter?",
+        options: [
+          { text: "Paciente, pedagógico y enfocado en orientar a los demás.", tags: ["educacion", "humanidades"] },
+          { text: "Lógico, analítico, enfocado en datos y resolución técnica.", tags: ["ingenieria"] },
+          { text: "Firme en principios de justicia, con criterio crítico sólido.", tags: ["juridicas"] },
+          { text: "Creativo, comunicativo y siempre abierto a expresarse.", tags: ["comunicacion"] }
+        ]
+      },
+      {
+        question: "11. ¿Cómo te resulta más cómodo aprender y estudiar nuevos conocimientos?",
+        options: [
+          { text: "De forma 100% digital a mi ritmo con plataformas en línea.", tags: ["virtual"] },
+          { text: "Mediante la práctica clínica o científica directa en laboratorio.", tags: ["medicas", "odontologia", "salud"] },
+          { text: "A través del debate oral, lectura profunda de casos y análisis.", tags: ["juridicas", "teologia"] },
+          { text: "Probar proyectos prácticos, talleres y dinámicas grupales.", tags: ["educacion", "economicas"] }
+        ]
+      },
+      {
+        question: "12. ¿Cuál es tu meta profesional principal a largo plazo?",
+        options: [
+          { text: "Tener mi propia clínica o consultorio privado de atención.", tags: ["odontologia", "medicas", "salud"] },
+          { text: "Dirigir una corporación o gestionar mi propio negocio.", tags: ["economicas"] },
+          { text: "Diseñar obras arquitectónicas icónicas y eficientes.", tags: ["arquitectura"] },
+          { text: "Ser un referente de innovación en sistemas o tecnología digital.", tags: ["ingenieria", "virtual"] }
+        ]
+      }
+    ];
+
+    // ESTADO DEL TEST
+    let currentQuestion = 0;
+    let userAnswers = new Array(QUESTIONS.length).fill(null);
+
+    // INICIAR TEST DESDE BIENVENIDA
+    function startQuiz() {
+      currentQuestion = 0;
+      userAnswers = new Array(QUESTIONS.length).fill(null);
+      document.getElementById('welcome-view').style.display = 'none';
+      document.getElementById('quiz-view').style.display = 'block';
+      renderQuestion();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // RENDERIZAR PREGUNTA ACTUAL
+    function renderQuestion() {
+      const q = QUESTIONS[currentQuestion];
+      
+      // Actualizar Barra de Progreso
+      const progressPct = Math.round(((currentQuestion + 1) / QUESTIONS.length) * 100);
+      document.getElementById('current-q-num').textContent = currentQuestion + 1;
+      document.getElementById('progress-percent').textContent = progressPct + '%';
+      document.getElementById('progress-bar-fill').style.width = progressPct + '%';
+
+      // Ocultar Advertencia
+      document.getElementById('alert-msg').style.display = 'none';
+
+      // Texto de Pregunta
+      document.getElementById('question-text').textContent = q.question;
+
+      // Opciones
+      const optionsContainer = document.getElementById('options-container');
+      optionsContainer.innerHTML = '';
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `option-btn ${userAnswers[currentQuestion] === idx ? 'selected' : ''}`;
+        btn.onclick = () => selectOption(idx);
+        
+        btn.innerHTML = `
+          <div class="radio-circle"></div>
+          <span>${opt.text}</span>
+        `;
+        
+        optionsContainer.appendChild(btn);
+      });
+
+      // Botón Anterior
+      document.getElementById('btn-prev').disabled = currentQuestion === 0;
+
+      // Texto Botón Siguiente/Ver Resultados
+      const nextBtn = document.getElementById('btn-next');
+      if (currentQuestion === QUESTIONS.length - 1) {
+        nextBtn.innerHTML = 'Ver mis resultados ✨';
+        nextBtn.className = 'btn btn-gold';
+      } else {
+        nextBtn.innerHTML = 'Siguiente →';
+        nextBtn.className = 'btn btn-primary';
+      }
+    }
+
+    // SELECCIONAR OPCIÓN
+    function selectOption(index) {
+      userAnswers[currentQuestion] = index;
+      document.getElementById('alert-msg').style.display = 'none';
+      renderQuestion();
+    }
+
+    // BOTÓN SIGUIENTE
+    function nextQuestion() {
+      if (userAnswers[currentQuestion] === null) {
+        document.getElementById('alert-msg').style.display = 'block';
+        return;
+      }
+
+      if (currentQuestion < QUESTIONS.length - 1) {
+        currentQuestion++;
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    // BOTÓN ANTERIOR
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        renderQuestion();
+      }
+    }
+
+    // CALCULAR Y MOSTRAR RESULTADOS
+    function showResults() {
+      // Puntuación por Facultad
+      const scores = {};
+      Object.keys(FACULTIES).forEach(fKey => scores[fKey] = 0);
+
+      userAnswers.forEach((selectedIdx, qIdx) => {
+        if (selectedIdx !== null) {
+          const selectedOption = QUESTIONS[qIdx].options[selectedIdx];
+          selectedOption.tags.forEach(tag => {
+            if (scores[tag] !== undefined) {
+              scores[tag] += 1;
+            }
+          });
+        }
+      });
+
+      // Obtener Puntuación Máxima
+      let maxScore = 0;
+      Object.values(scores).forEach(score => {
+        if (score > maxScore) maxScore = score;
+      });
+
+      // Filtrar Facultades Empatadas en Primer Lugar
+      const topFacultiesKeys = Object.keys(scores).filter(fKey => scores[fKey] === maxScore && maxScore > 0);
+
+      // Si no hay coincidencias directas
+      const finalKeys = topFacultiesKeys.length > 0 ? topFacultiesKeys : ['economicas', 'humanidades'];
+
+      // Mostrar HTML
+      const resultsList = document.getElementById('faculties-results-list');
+      resultsList.innerHTML = '';
+
+      finalKeys.forEach(fKey => {
+        const fac = FACULTIES[fKey];
+        const percentMatch = Math.min(100, Math.round((scores[fKey] / (maxScore || 1)) * 100));
+
+        const card = document.createElement('div');
+        card.className = 'faculty-card';
+        card.innerHTML = `
+          <div class="faculty-logo-box">
+            <img src="${fac.logo}" alt="Logo ${fac.name}" class="faculty-logo-img">
+          </div>
+          <div class="faculty-info">
+            <div class="match-tag">🌟 ${percentMatch}% de Coincidencia</div>
+            <div class="area-tag">${fac.area}</div>
+            <p class="faculty-desc"><strong>¿Por qué coincide contigo?</strong> ${fac.reason}</p>
+            <div class="card-actions">
+              <a href="${fac.form}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 0.65rem 1.25rem; font-size: 0.9rem;">
+                🎓 Inscríbete
+              </a>
+              <a href="https://danielozu233-cmyk.github.io/Portal-de-Inscripci-nes/" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="padding: 0.65rem 1.25rem; font-size: 0.9rem;">
+                🏛️ Ver más facultades
+              </a>
+            </div>
+          </div>
+        `;
+        resultsList.appendChild(card);
+      });
+
+      // Intercambiar Vistas
+      document.getElementById('quiz-view').style.display = 'none';
+      document.getElementById('results-view').style.display = 'block';
+
+      // Scroll arriba suavemente
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // REINICIAR CUESTIONARIO Y VOLVER A INICIO
+    function restartQuiz() {
+      currentQuestion = 0;
+      userAnswers = new Array(QUESTIONS.length).fill(null);
+      document.getElementById('results-view').style.display = 'none';
+      document.getElementById('welcome-view').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
